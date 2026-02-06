@@ -1,93 +1,246 @@
-# Welcome to your Lovable project
+# Secure Share Hub
 
-## Project info
+A full-stack secure file sharing application with end-to-end encryption, access control, and activity tracking.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Features
 
-## How can I edit this code?
+- 🔐 **Secure Authentication** - JWT-based authentication with role-based access control
+- 📁 **File Sharing** - Upload and share files with unique access tokens
+- ⏰ **Expiration Control** - Set automatic expiration times for shared files
+- 📊 **Download Limits** - Control the number of times a file can be downloaded
+- 🔒 **Access Revocation** - Revoke access to shared files at any time
+- 📈 **Activity Tracking** - Monitor all file access and download activities
+- 👥 **Admin Dashboard** - Comprehensive admin panel for managing users and files
+- 🎨 **Modern UI** - Beautiful, responsive interface built with React and Tailwind CSS
 
-There are several ways of editing your application.
+## Technologies Used
 
-**Use Lovable**
+### Frontend
+- **React** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **Tailwind CSS** - Styling
+- **shadcn/ui** - UI components
+- **React Router** - Client-side routing
+- **Axios** - HTTP client
+- **Framer Motion** - Animations
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### Backend
+- **Node.js** - Runtime environment
+- **Express** - Web framework
+- **MongoDB** - Database
+- **Mongoose** - ODM for MongoDB
+- **JWT** - Authentication
+- **bcryptjs** - Password hashing
+- **Multer** - File upload handling
+- **Helmet** - Security headers
+- **CORS** - Cross-origin resource sharing
 
-Changes made via Lovable will be committed automatically to this repo.
+## Project Structure
 
-**Use your preferred IDE**
+```
+secure-share-hub/
+├── src/                      # Frontend source code
+│   ├── components/          # React components
+│   ├── pages/              # Page components
+│   ├── lib/                # Contexts and utilities
+│   ├── services/           # API service layer
+│   └── App.tsx             # Main app component
+├── server/                  # Backend source code
+│   ├── src/
+│   │   ├── config/         # Configuration files
+│   │   ├── models/         # MongoDB models
+│   │   ├── middleware/     # Express middleware
+│   │   ├── routes/         # API routes
+│   │   ├── controllers/    # Request handlers
+│   │   ├── utils/          # Utility functions
+│   │   └── index.ts        # Server entry point
+│   ├── uploads/            # File storage directory
+│   └── package.json
+└── package.json            # Root package.json
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
 
-Follow these steps:
+- Node.js (v16 or higher)
+- MongoDB (v5 or higher) - Running locally or MongoDB Atlas
+- npm or yarn
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+### Installation
+
+1. **Clone the repository**
+```bash
 git clone <YOUR_GIT_URL>
+cd secure-share-hub
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2. **Install frontend dependencies**
+```bash
+npm install
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+3. **Install backend dependencies**
+```bash
+cd server
+npm install
+cd ..
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+4. **Set up environment variables**
+
+Create `.env` in the root directory:
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+Create `server/.env`:
+```env
+NODE_ENV=development
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/secure-share-hub
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
+JWT_REFRESH_SECRET=your-refresh-token-secret
+JWT_EXPIRE=24h
+JWT_REFRESH_EXPIRE=7d
+MAX_FILE_SIZE=52428800
+UPLOAD_DIR=./uploads
+CORS_ORIGIN=http://localhost:5173
+```
+
+5. **Seed the database with initial admin user**
+```bash
+cd server
+npm run seed
+cd ..
+```
+
+This creates an admin user:
+- Email: `admin@example.com`
+- Password: `Admin123!`
+
+### Running the Application
+
+**Option 1: Run both client and server together**
+```bash
+npm run dev:full
+```
+
+**Option 2: Run separately**
+
+Terminal 1 (Frontend):
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-### Deploy to Vercel (Recommended)
-
-This project is optimized for deployment on Vercel. You have two options:
-
-**Option 1: Quick Deploy (via GitHub)**
-1. Push your code to GitHub
-2. Visit [Vercel](https://vercel.com) and import your repository
-3. Vercel will auto-detect the configuration and deploy
-
-**Option 2: Deploy via CLI**
+Terminal 2 (Backend):
 ```bash
-npm install -g vercel
-vercel login
-vercel --prod
+npm run dev:server
 ```
 
-📖 **[Read the complete deployment guide](./DEPLOYMENT.md)** for detailed instructions, troubleshooting, and configuration options.
+The application will be available at:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:5000/api
 
-### Deploy via Lovable
+## Default Credentials
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+After seeding the database:
+- **Admin**: admin@example.com / Admin123!
 
-## Can I connect a custom domain to my Lovable project?
+You can register new users through the application.
 
-Yes, you can!
+## API Documentation
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+For detailed API documentation, see [server/README.md](./server/README.md)
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### Main Endpoints
+
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - User login
+- `POST /api/auth/admin/login` - Admin login
+- `POST /api/files/upload` - Upload file
+- `GET /api/files` - Get user's files
+- `GET /api/files/download/:token` - Download file by token
+- `GET /api/admin/stats` - Get admin statistics (admin only)
+
+## Development
+
+### Available Scripts
+
+**Root directory:**
+- `npm run dev` - Start frontend dev server
+- `npm run dev:server` - Start backend dev server
+- `npm run dev:full` - Start both frontend and backend
+- `npm run build` - Build frontend
+- `npm run build:server` - Build backend
+- `npm run build:full` - Build both
+- `npm run lint` - Run ESLint
+- `npm run test` - Run tests
+
+**Server directory:**
+- `npm run dev` - Start backend in development mode
+- `npm run build` - Build TypeScript to JavaScript
+- `npm start` - Start production server
+- `npm run seed` - Seed database with admin user
+
+## Deployment
+
+### Frontend (Vercel)
+
+1. Push your code to GitHub
+2. Visit [Vercel](https://vercel.com) and import your repository
+3. Set environment variables:
+   - `VITE_API_URL` - Your backend API URL
+
+### Backend
+
+The backend can be deployed to:
+- Heroku
+- Railway
+- DigitalOcean
+- AWS
+- Any Node.js hosting platform
+
+Make sure to:
+1. Set all required environment variables
+2. Use a production MongoDB instance (MongoDB Atlas recommended)
+3. Change JWT secrets to secure random strings
+4. Set `NODE_ENV=production`
+
+## Security Features
+
+- JWT-based authentication with refresh tokens
+- Password hashing with bcrypt
+- Secure HTTP headers with Helmet
+- CORS configuration
+- Input validation
+- File type whitelisting
+- File size limits
+- Access token generation with crypto
+- Activity logging with IP tracking
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Support
+
+For issues and questions:
+- Open an issue on GitHub
+- Check the [server README](./server/README.md) for backend-specific documentation
+- Review the API documentation
+
+## Acknowledgments
+
+- Built with [Lovable](https://lovable.dev)
+- UI components from [shadcn/ui](https://ui.shadcn.com)
+- Icons from [Lucide](https://lucide.dev)
