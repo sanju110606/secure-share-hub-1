@@ -96,7 +96,7 @@ export default function UserLogin() {
 
           <div className="mt-6 text-center text-sm">
             <p className="text-muted-foreground">
-              Demo credentials: <span className="font-medium">user@example.com</span> / <span className="font-medium">user123</span>
+              Demo credentials: <span className="font-medium">user@example.com</span> / <span className="font-medium">User123!</span>
             </p>
             <p className="text-muted-foreground mt-2">
               Don't have an account? <Link to="/register" className="text-primary hover:underline">Sign up here</Link>

@@ -36,9 +36,9 @@ Test all critical features on the live site:
 ### Authentication
 - [ ] Navigate to live URL
 - [ ] Access `/login` page loads correctly
-- [ ] User login works (`user@example.com / user123`)
+- [ ] User login works (`user@example.com / User123!`)
 - [ ] Access `/login/admin` page loads correctly
-- [ ] Admin login works (`admin@example.com / admin123`)
+- [ ] Admin login works (`admin@example.com / Admin123!`)
 - [ ] Logout functionality works
 
 ### Routing

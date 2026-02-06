@@ -7,7 +7,13 @@ import { Input } from '@/components/ui/input';
 import { authAPI } from '@/services/api';
 import { toast } from 'sonner';
 
-const MIN_PASSWORD_LENGTH = 6;
+const MIN_PASSWORD_LENGTH = 8;
+
+// Password strength validation matching backend policy
+const isStrongPassword = (password: string): boolean => {
+  const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+\-=[\]{};':"\\|,.<>/])(?!.*\s)[A-Za-z\d@$!%*?&#^()_+\-=[\]{};':"\\|,.<>/]{8,}$/;
+  return strongPasswordRegex.test(password);
+};
 
 export default function UserRegister() {
   const [name, setName] = useState('');
@@ -19,9 +25,9 @@ export default function UserRegister() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate password length (minimum 6 characters as per backend requirement)
-    if (password.length < MIN_PASSWORD_LENGTH) {
-      toast.error(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
+    // Validate password strength (matching backend requirements)
+    if (!isStrongPassword(password)) {
+      toast.error('Password must be at least 8 characters and include uppercase, lowercase, number, and special character');
       return;
     }
 
@@ -37,8 +43,9 @@ export default function UserRegister() {
         toast.error(response.error?.message || 'Registration failed');
       }
     } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { error?: { message?: string } } } };
-      const errorMessage = axiosError.response?.data?.error?.message || 'An error occurred during registration';
+      const axiosError = error as { response?: { data?: { error?: { message?: string; details?: Array<{ msg?: string }> } } } };
+      const errorDetails = axiosError.response?.data?.error?.details;
+      const errorMessage = errorDetails?.[0]?.msg || axiosError.response?.data?.error?.message || 'An error occurred during registration';
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -112,12 +119,15 @@ export default function UserRegister() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Minimum 6 characters"
+                  placeholder="Min 8 chars with upper, lower, number, special"
                   className="pl-10"
                   required
                   minLength={MIN_PASSWORD_LENGTH}
                 />
               </div>
+              <p className="text-xs text-muted-foreground">
+                Must include: uppercase, lowercase, number, special character (@$!%*?&#, etc.)
+              </p>
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>

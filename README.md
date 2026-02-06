@@ -176,9 +176,13 @@ npm run seed
 cd ..
 ```
 
-This creates an admin user:
-- Email: `admin@example.com`
-- Password: `Admin123!`
+This creates an admin user and a demo user:
+- Admin Email: `admin@example.com`
+- Admin Password: `Admin123!`
+- Demo User Email: `user@example.com`
+- Demo User Password: `User123!`
+
+**Note**: All passwords must meet the strong password policy (min 8 chars, uppercase, lowercase, number, special character).
 
 ### Running the Application
 
@@ -207,8 +211,11 @@ The application will be available at:
 
 After seeding the database:
 - **Admin**: admin@example.com / Admin123!
+- **Demo User**: user@example.com / User123!
 
 You can register new users through the application.
+
+**Password Policy**: All passwords must be at least 8 characters and include uppercase, lowercase, number, and special character.
 
 ## API Endpoints
 

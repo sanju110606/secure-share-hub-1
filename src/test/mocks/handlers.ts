@@ -24,7 +24,7 @@ export const handlers = [
     const body = await request.json() as { email: string; password: string };
     
     // Validate credentials
-    if (body.email === 'user@example.com' && body.password === 'user123') {
+    if (body.email === 'user@example.com' && body.password === 'User123!') {
       return HttpResponse.json({
         success: true,
         data: {
@@ -57,7 +57,7 @@ export const handlers = [
     const body = await request.json() as { email: string; password: string };
     
     // Validate admin credentials
-    if (body.email === 'admin@example.com' && body.password === 'admin123') {
+    if (body.email === 'admin@example.com' && body.password === 'Admin123!') {
       return HttpResponse.json({
         success: true,
         data: {

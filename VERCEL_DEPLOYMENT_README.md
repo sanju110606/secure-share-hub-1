@@ -160,9 +160,10 @@ Admin dashboard:  https://your-app.vercel.app/admin
 
 ### Test Accounts
 ```
-User:   user@example.com / user123
-Admin:  admin@example.com / admin123
+User:   user@example.com / User123!
+Admin:  admin@example.com / Admin123!
 ```
+**Note**: Password policy requires min 8 chars with uppercase, lowercase, number, and special character.
 
 ## Continuous Deployment
 

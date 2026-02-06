@@ -129,8 +129,8 @@ Vercel provides free SSL certificates for all custom domains.
 
 After deployment, test these key features:
 
-1. **User Login:** Navigate to `/login` and test with `user@example.com / user123`
-2. **Admin Login:** Navigate to `/login/admin` and test with `admin@example.com / admin123`
+1. **User Login:** Navigate to `/login` and test with `user@example.com / User123!`
+2. **Admin Login:** Navigate to `/login/admin` and test with `admin@example.com / Admin123!`
 3. **File Access:** Test file download links
 4. **Route Protection:** Verify admin routes are protected
 5. **Responsive Design:** Test on mobile devices

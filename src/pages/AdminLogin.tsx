@@ -96,7 +96,7 @@ export default function AdminLogin() {
 
           <div className="mt-6 text-center text-sm">
             <p className="text-muted-foreground">
-              Demo credentials: <span className="font-medium">admin@example.com</span> / <span className="font-medium">admin123</span>
+              Demo credentials: <span className="font-medium">admin@example.com</span> / <span className="font-medium">Admin123!</span>
             </p>
             <p className="text-muted-foreground mt-2">
               Not an admin? <Link to="/login" className="text-primary hover:underline">User login</Link>

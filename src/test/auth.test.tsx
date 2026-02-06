@@ -23,7 +23,7 @@ describe('Authentication', () => {
       
       let success: boolean = false;
       await act(async () => {
-        success = await result.current.login('user@example.com', 'user123', 'user');
+        success = await result.current.login('user@example.com', 'User123!', 'user');
       });
 
       expect(success).toBe(true);
@@ -41,7 +41,7 @@ describe('Authentication', () => {
       
       let success: boolean = false;
       await act(async () => {
-        success = await result.current.login('admin@example.com', 'admin123', 'admin');
+        success = await result.current.login('admin@example.com', 'Admin123!', 'admin');
       });
 
       expect(success).toBe(true);
@@ -67,7 +67,7 @@ describe('Authentication', () => {
       
       let success: boolean = false;
       await act(async () => {
-        success = await result.current.login('admin@example.com', 'admin123', 'user');
+        success = await result.current.login('admin@example.com', 'Admin123!', 'user');
       });
 
       expect(success).toBe(false);
@@ -79,7 +79,7 @@ describe('Authentication', () => {
       
       let success: boolean = false;
       await act(async () => {
-        success = await result.current.login('user@example.com', 'user123', 'admin');
+        success = await result.current.login('user@example.com', 'User123!', 'admin');
       });
 
       expect(success).toBe(false);
@@ -90,7 +90,7 @@ describe('Authentication', () => {
       const { result } = renderHook(() => useAuth(), { wrapper });
       
       await act(async () => {
-        await result.current.login('user@example.com', 'user123', 'user');
+        await result.current.login('user@example.com', 'User123!', 'user');
       });
 
       expect(result.current.isAuthenticated).toBe(true);
@@ -107,7 +107,7 @@ describe('Authentication', () => {
       const { result } = renderHook(() => useAuth(), { wrapper });
       
       await act(async () => {
-        await result.current.login('user@example.com', 'user123', 'user');
+        await result.current.login('user@example.com', 'User123!', 'user');
       });
 
       const storedUser = localStorage.getItem('auth_user');
@@ -121,7 +121,7 @@ describe('Authentication', () => {
       const { result } = renderHook(() => useAuth(), { wrapper });
       
       await act(async () => {
-        await result.current.login('user@example.com', 'user123', 'user');
+        await result.current.login('user@example.com', 'User123!', 'user');
       });
 
       act(() => {

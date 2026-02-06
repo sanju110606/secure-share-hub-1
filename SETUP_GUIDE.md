@@ -123,10 +123,17 @@ cd ..
 **Output should show:**
 ```
 MongoDB connected
-Admin user created successfully
-Email: admin@example.com
-Password: Admin123!
+✓ Admin user created successfully
+  Email: admin@example.com
+  Password: Admin123!
+✓ Demo user created successfully
+  Email: user@example.com
+  Password: User123!
+
+✓ Seed completed: 2 user(s) created
 ```
+
+**Note**: The password policy requires at least 8 characters with uppercase, lowercase, number, and special character.
 
 ### 6. Run the Application
 
@@ -163,9 +170,21 @@ npm run dev
    - Email: `admin@example.com`
    - Password: `Admin123!`
 
+#### Demo User Login
+1. Go to [http://localhost:5173/login](http://localhost:5173/login)
+2. Use credentials:
+   - Email: `user@example.com`
+   - Password: `User123!`
+
 #### User Registration
 1. Go to [http://localhost:5173/login](http://localhost:5173/login)
 2. Click "Register" and create a new user account
+3. **Important**: Password must be at least 8 characters and include:
+   - At least one uppercase letter
+   - At least one lowercase letter
+   - At least one number
+   - At least one special character (@$!%*?&#, etc.)
+   - No spaces
 
 ## Testing the Features
 
