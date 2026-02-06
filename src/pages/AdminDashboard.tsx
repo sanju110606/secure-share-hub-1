@@ -3,20 +3,20 @@ import { motion } from 'framer-motion';
 import { Shield, Link2, AlertTriangle, Users, FileText, Download, Ban, RefreshCw, FileDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useFiles } from '@/lib/file-context';
+import { useAdmin } from '@/lib/admin-context';
 import StatsCard from '@/components/file-sharing/StatsCard';
 import RiskBadge from '@/components/file-sharing/RiskBadge';
 import ActivityTimeline from '@/components/file-sharing/ActivityTimeline';
-import { formatFileSize, formatTimeAgo, getTimeRemaining, calculateRisk, mockAdminStats, exportToCSV } from '@/lib/mock-data';
+import { formatFileSize, formatTimeAgo, getTimeRemaining, calculateRisk, exportToCSV } from '@/lib/mock-data';
 import { toast } from 'sonner';
 
 export default function AdminDashboard() {
-  const { files, activity, bulkRevoke, regenerateToken } = useFiles();
+  const { stats, allFiles, allActivity, deleteFile } = useAdmin();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const highRiskFiles = useMemo(
-    () => files.filter(f => calculateRisk(f) === 'high' && f.status === 'active'),
-    [files]
+    () => allFiles.filter(f => calculateRisk(f) === 'high' && f.status === 'active'),
+    [allFiles]
   );
 
   const toggleSelect = (id: string) => {
@@ -29,29 +29,27 @@ export default function AdminDashboard() {
   };
 
   const toggleAll = () => {
-    if (selectedIds.size === files.length) {
+    if (selectedIds.size === allFiles.length) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(files.map(f => f.id)));
+      setSelectedIds(new Set(allFiles.map(f => f.id)));
     }
   };
 
-  const handleBulkRevoke = () => {
+  const handleBulkRevoke = async () => {
     if (selectedIds.size === 0) return;
-    bulkRevoke(Array.from(selectedIds));
-    toast.success(`${selectedIds.size} links revoked`);
-    setSelectedIds(new Set());
-  };
-
-  const handleBulkRotate = () => {
-    if (selectedIds.size === 0) return;
-    selectedIds.forEach(id => regenerateToken(id));
-    toast.success(`${selectedIds.size} tokens rotated`);
-    setSelectedIds(new Set());
+    try {
+      // Revoke allFiles by deleting them (admin can delete any file)
+      await Promise.all(Array.from(selectedIds).map(id => deleteFile(id)));
+      toast.success(`${selectedIds.size} allFiles removed`);
+      setSelectedIds(new Set());
+    } catch (error) {
+      toast.error('Failed to revoke allFiles');
+    }
   };
 
   const handleExportLogs = () => {
-    const data = activity.map(e => ({
+    const data = allActivity.map(e => ({
       timestamp: new Date(e.timestamp).toISOString(),
       fileId: e.fileId,
       eventType: e.eventType,
@@ -66,17 +64,17 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Monitor and manage all shared files across the platform.</p>
+        <p className="text-muted-foreground mt-1">Monitor and manage all shared allFiles across the platform.</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatsCard title="Users" value={mockAdminStats.totalUsers} icon={Users} variant="primary" />
-        <StatsCard title="Files" value={mockAdminStats.totalFiles} icon={FileText} variant="default" />
-        <StatsCard title="Active Links" value={mockAdminStats.activeLinks} icon={Link2} variant="success" />
-        <StatsCard title="Expired" value={mockAdminStats.expiredLinks} icon={Shield} variant="warning" />
-        <StatsCard title="Downloads" value={mockAdminStats.totalDownloads} icon={Download} variant="primary" />
-        <StatsCard title="Blocked" value={mockAdminStats.blockedAttempts} icon={Ban} variant="destructive" />
+        <StatsCard title="Users" value={stats?.totalUsers || 0} icon={Users} variant="primary" />
+        <StatsCard title="Files" value={stats?.totalFiles || 0} icon={FileText} variant="default" />
+        <StatsCard title="Active Links" value={stats?.activeLinks || 0} icon={Link2} variant="success" />
+        <StatsCard title="Expired" value={stats?.expiredLinks || 0} icon={Shield} variant="warning" />
+        <StatsCard title="Downloads" value={stats?.totalDownloads || 0} icon={Download} variant="primary" />
+        <StatsCard title="Blocked" value={stats?.blockedAttempts || 0} icon={Ban} variant="destructive" />
       </div>
 
       {/* High Risk Alert */}
@@ -101,9 +99,16 @@ export default function AdminDashboard() {
                   size="sm"
                   variant="outline"
                   className="text-destructive hover:text-destructive text-xs"
-                  onClick={() => { bulkRevoke([file.id]); toast.success('Link revoked'); }}
+                  onClick={async () => {
+                    try {
+                      await deleteFile(file.id);
+                      toast.success('File removed');
+                    } catch (error) {
+                      toast.error('Failed to remove file');
+                    }
+                  }}
                 >
-                  Revoke
+                  Remove
                 </Button>
               </div>
             ))}
@@ -124,17 +129,7 @@ export default function AdminDashboard() {
               className="text-xs"
             >
               <Ban className="w-3.5 h-3.5 mr-1.5" />
-              Revoke Selected ({selectedIds.size})
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleBulkRotate}
-              disabled={selectedIds.size === 0}
-              className="text-xs"
-            >
-              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-              Rotate Tokens
+              Remove Selected ({selectedIds.size})
             </Button>
             <Button size="sm" variant="outline" onClick={handleExportLogs} className="text-xs">
               <FileDown className="w-3.5 h-3.5 mr-1.5" />
@@ -149,7 +144,7 @@ export default function AdminDashboard() {
               <tr className="border-b bg-muted/50">
                 <th className="p-3 text-left w-10">
                   <Checkbox
-                    checked={selectedIds.size === files.length && files.length > 0}
+                    checked={selectedIds.size === allFiles.length && allFiles.length > 0}
                     onCheckedChange={toggleAll}
                   />
                 </th>
@@ -162,7 +157,7 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {files.map((file, i) => {
+              {allFiles.map((file, i) => {
                 const isExpired = new Date(file.expiryTimestamp).getTime() < Date.now();
                 return (
                   <motion.tr
@@ -225,7 +220,7 @@ export default function AdminDashboard() {
           <h2 className="text-lg font-semibold text-foreground">Recent Audit Log</h2>
         </div>
         <div className="rounded-xl border bg-card card-shadow">
-          <ActivityTimeline events={activity.slice(0, 10)} showFileId />
+          <ActivityTimeline events={allActivity.slice(0, 10)} showFileId />
         </div>
       </div>
     </div>

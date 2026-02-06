@@ -23,31 +23,23 @@ export default function FileUpload() {
     if (file) handleFile(file);
   }, [handleFile]);
 
-  const handleUpload = useCallback(() => {
+  const handleUpload = useCallback(async () => {
     if (!selectedFile) return;
-    const fileId = Math.random().toString(36).substring(2, 10);
-    const token = 'tk_' + Array.from({ length: 32 }, () => Math.random().toString(36).charAt(2)).join('');
+    
+    try {
+      // Default settings: 5 max downloads, 24 hour expiry, private visibility
+      await addFile(selectedFile, 5, 24, 'private');
 
-    addFile({
-      id: fileId,
-      name: selectedFile.name,
-      size: selectedFile.size,
-      type: selectedFile.type || 'application/octet-stream',
-      uploadedAt: new Date().toISOString(),
-      accessToken: token,
-      expiryTimestamp: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      maxDownloads: 5,
-      usedDownloads: 0,
-      status: 'active',
-      visibility: 'private',
-      uploadedBy: 'user-1',
-      uploadedByName: 'Alex Chen',
-    });
-
-    toast.success('File uploaded successfully', {
-      description: `${selectedFile.name} is ready to share.`,
-    });
-    setSelectedFile(null);
+      toast.success('File uploaded successfully', {
+        description: `${selectedFile.name} is ready to share.`,
+      });
+      setSelectedFile(null);
+    } catch (error) {
+      toast.error('Failed to upload file', {
+        description: 'Please try again later.',
+      });
+      console.error('Upload error:', error);
+    }
   }, [selectedFile, addFile]);
 
   return (
