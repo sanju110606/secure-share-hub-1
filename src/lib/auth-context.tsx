@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { authAPI } from '../services/api';
 
 export type UserRole = 'user' | 'admin';
 
@@ -18,12 +19,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-// Mock users for demonstration
-const MOCK_USERS = {
-  'user@example.com': { password: 'user123', userId: 'user-1', role: 'user' as UserRole, name: 'Alex Chen' },
-  'admin@example.com': { password: 'admin123', userId: 'admin-1', role: 'admin' as UserRole, name: 'Admin User' },
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
     // Load user from localStorage immediately during initialization
@@ -41,35 +36,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   const login = useCallback(async (email: string, password: string, role: UserRole): Promise<boolean> => {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    try {
+      // Call appropriate login endpoint based on role
+      const response = role === 'admin' 
+        ? await authAPI.adminLogin(email, password)
+        : await authAPI.login(email, password);
 
-    const mockUser = MOCK_USERS[email as keyof typeof MOCK_USERS];
-    
-    if (!mockUser || mockUser.password !== password) {
+      if (response.success) {
+        const { user: userData, accessToken, refreshToken } = response.data;
+
+        // Store tokens
+        localStorage.setItem('access_token', accessToken);
+        localStorage.setItem('refresh_token', refreshToken);
+
+        // Store user data
+        const userInfo: User = {
+          userId: userData.userId,
+          role: userData.role,
+          name: userData.name,
+          email: userData.email,
+        };
+
+        setUser(userInfo);
+        localStorage.setItem('auth_user', JSON.stringify(userInfo));
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
       return false;
     }
-
-    // Validate role matches
-    if (mockUser.role !== role) {
-      return false;
-    }
-
-    const userData: User = {
-      userId: mockUser.userId,
-      role: mockUser.role,
-      name: mockUser.name,
-      email,
-    };
-
-    setUser(userData);
-    localStorage.setItem('auth_user', JSON.stringify(userData));
-    return true;
   }, []);
 
   const logout = useCallback(() => {
     setUser(null);
     localStorage.removeItem('auth_user');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    
+    // Call logout endpoint (optional, for logging purposes)
+    authAPI.logout().catch(() => {
+      // Ignore errors on logout
+    });
   }, []);
 
   return (
