@@ -23,7 +23,7 @@ export default function FileAccessPage() {
     // Log all access attempts
     const logAttempt = (eventType: 'download_success' | 'download_blocked' | 'access_attempt', details: string) => {
       addActivity({
-        id: Math.random().toString(36).substring(2),
+        id: crypto.randomUUID(),
         fileId: file.id,
         timestamp: new Date().toISOString(),
         eventType,
@@ -67,7 +67,7 @@ export default function FileAccessPage() {
     updateFile(file.id, { usedDownloads: file.usedDownloads + 1 });
     
     addActivity({
-      id: Math.random().toString(36).substring(2),
+      id: crypto.randomUUID(),
       fileId: file.id,
       timestamp: new Date().toISOString(),
       eventType: 'download_success',
