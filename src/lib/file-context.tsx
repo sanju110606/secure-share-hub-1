@@ -14,6 +14,7 @@ interface FileContextType {
   refreshFiles: () => Promise<void>;
   refreshActivity: () => Promise<void>;
   deleteFile: (id: string) => Promise<void>;
+  addActivity: (activity: ActivityEvent) => void;
 }
 
 const FileContext = createContext<FileContextType | null>(null);
@@ -143,6 +144,10 @@ export function FileProvider({ children }: { children: React.ReactNode }) {
     }
   }, [refreshActivity]);
 
+  const addActivity = useCallback((newActivity: ActivityEvent) => {
+    setActivity(prev => [newActivity, ...prev]);
+  }, []);
+
   return (
     <FileContext.Provider value={{ 
       files, 
@@ -156,6 +161,7 @@ export function FileProvider({ children }: { children: React.ReactNode }) {
       refreshFiles,
       refreshActivity,
       deleteFile,
+      addActivity,
     }}>
       {children}
     </FileContext.Provider>
