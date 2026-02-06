@@ -1,33 +1,42 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Shield, User, Lock } from 'lucide-react';
+import { Shield, User, Mail, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/lib/auth-context';
+import { authAPI } from '@/services/api';
 import { toast } from 'sonner';
 
-export default function UserLogin() {
+export default function UserRegister() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate password length (minimum 6 characters as per backend requirement)
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const success = await login(email, password, 'user');
-      if (success) {
-        toast.success('Login successful');
-        navigate('/');
+      const response = await authAPI.register(email, password, name);
+      
+      if (response.success) {
+        toast.success('Registration successful! Please login.');
+        navigate('/login');
       } else {
-        toast.error('Invalid email or password');
+        toast.error(response.error?.message || 'Registration failed');
       }
-    } catch (error) {
-      toast.error('An error occurred during login');
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error?.message || 'An error occurred during registration';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -47,18 +56,36 @@ export default function UserLogin() {
             </div>
             <span className="text-2xl font-bold text-foreground">VaultDrop</span>
           </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">User Login</h1>
-          <p className="text-muted-foreground">Access your secure file sharing dashboard</p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">Create Account</h1>
+          <p className="text-muted-foreground">Sign up for secure file sharing</p>
         </div>
 
         <div className="rounded-xl border bg-card p-6 card-shadow">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
+              <label htmlFor="name" className="text-sm font-medium text-foreground">
+                Name
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="John Doe"
+                  className="pl-10"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium text-foreground">
                 Email
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
@@ -82,27 +109,22 @@ export default function UserLogin() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                  placeholder="Minimum 6 characters"
                   className="pl-10"
                   required
+                  minLength={6}
                 />
               </div>
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? 'Creating account...' : 'Sign Up'}
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm">
             <p className="text-muted-foreground">
-              Demo credentials: <span className="font-medium">user@example.com</span> / <span className="font-medium">user123</span>
-            </p>
-            <p className="text-muted-foreground mt-2">
-              Don't have an account? <Link to="/register" className="text-primary hover:underline">Sign up here</Link>
-            </p>
-            <p className="text-muted-foreground mt-2">
-              Admin? <Link to="/login/admin" className="text-primary hover:underline">Login here</Link>
+              Already have an account? <Link to="/login" className="text-primary hover:underline">Login here</Link>
             </p>
           </div>
         </div>

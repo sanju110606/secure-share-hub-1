@@ -13,6 +13,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ActivityPage from "./pages/ActivityPage";
 import FileAccessPage from "./pages/FileAccessPage";
 import UserLogin from "./pages/UserLogin";
+import UserRegister from "./pages/UserRegister";
 import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +30,7 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/login" element={<UserLogin />} />
+                <Route path="/register" element={<UserRegister />} />
                 <Route path="/login/admin" element={<AdminLogin />} />
                 <Route path="/file/:fileId" element={<FileAccessPage />} />
                 <Route
