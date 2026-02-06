@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosError } from 'axios';
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -26,7 +26,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest: any = error.config;
+    interface RetryConfig extends InternalAxiosRequestConfig {
+      _retry?: boolean;
+    }
+    const originalRequest = error.config as RetryConfig;
 
     // If token expired, try to refresh
     if (error.response?.status === 401 && !originalRequest._retry) {

@@ -85,14 +85,14 @@ export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction): vo
  * Generate JWT access token
  */
 export const generateAccessToken = (userId: string): string => {
-  return jwt.sign({ userId }, config.jwtSecret, { expiresIn: config.jwtExpire as any });
+  return jwt.sign({ userId }, config.jwtSecret, { expiresIn: config.jwtExpire } as jwt.SignOptions);
 };
 
 /**
  * Generate JWT refresh token
  */
 export const generateRefreshToken = (userId: string): string => {
-  return jwt.sign({ userId }, config.jwtRefreshSecret, { expiresIn: config.jwtRefreshExpire as any });
+  return jwt.sign({ userId }, config.jwtRefreshSecret, { expiresIn: config.jwtRefreshExpire } as jwt.SignOptions);
 };
 
 /**

@@ -3,7 +3,7 @@ import { body, param, ValidationChain } from 'express-validator';
 // Password strength validation helper
 export const isStrongPassword = (password: string): boolean => {
   // Minimum 8 characters, at least one uppercase, one lowercase, one number, one special character, and no spaces
-  const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/])(?!.*\s)[A-Za-z\d@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/]{8,}$/;
+  const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+\-=[\]{};':"\\|,.<>/])(?!.*\s)[A-Za-z\d@$!%*?&#^()_+\-=[\]{};':"\\|,.<>/]{8,}$/;
   return strongPasswordRegex.test(password);
 };
 

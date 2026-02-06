@@ -2,9 +2,9 @@ import { Response } from 'express';
 import { validationResult } from 'express-validator';
 import fs from 'fs';
 import path from 'path';
-import { File } from '../models/File';
+import { File, IFile } from '../models/File';
 import { Activity } from '../models/Activity';
-import { User } from '../models/User';
+import { User, IUser } from '../models/User';
 import { AuthRequest } from '../middleware/auth';
 import { generateAccessToken } from '../utils/tokenGenerator';
 import { config } from '../config/config';
@@ -61,7 +61,7 @@ export const uploadFile = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     // Comprehensive file validation
-    const validationResult = await validateFile(
+    const fileValidationResult = await validateFile(
       req.file.path,
       req.file.originalname,
       req.file.mimetype,
@@ -69,7 +69,7 @@ export const uploadFile = async (req: AuthRequest, res: Response): Promise<void>
       config.maxFileSize
     );
 
-    if (!validationResult.valid) {
+    if (!fileValidationResult.valid) {
       // Clean up uploaded file
       if (fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
@@ -79,7 +79,7 @@ export const uploadFile = async (req: AuthRequest, res: Response): Promise<void>
       await Activity.create({
         eventType: 'upload_blocked',
         status: 'blocked',
-        details: `File upload blocked: ${validationResult.errors.join(', ')}`,
+        details: `File upload blocked: ${fileValidationResult.errors.join(', ')}`,
         ipAddress: req.ip,
         userAgent: req.get('user-agent'),
       });
@@ -89,7 +89,7 @@ export const uploadFile = async (req: AuthRequest, res: Response): Promise<void>
         error: {
           message: 'File validation failed',
           code: 'VALIDATION_FAILED',
-          details: validationResult.errors,
+          details: fileValidationResult.errors,
         },
       });
       return;
@@ -159,7 +159,7 @@ export const uploadFile = async (req: AuthRequest, res: Response): Promise<void>
           status: file.status,
           visibility: file.visibility,
           uploadedBy: file.uploadedBy._id,
-          uploadedByName: (file.uploadedBy as any).name,
+          uploadedByName: (file.uploadedBy as unknown as IUser).name,
         },
       },
     });
@@ -212,7 +212,7 @@ export const getUserFiles = async (req: AuthRequest, res: Response): Promise<voi
           status: file.status,
           visibility: file.visibility,
           uploadedBy: file.uploadedBy._id,
-          uploadedByName: (file.uploadedBy as any).name,
+          uploadedByName: (file.uploadedBy as unknown as IUser).name,
         })),
       },
     });
@@ -289,7 +289,7 @@ export const getFileById = async (req: AuthRequest, res: Response): Promise<void
           status: file.status,
           visibility: file.visibility,
           uploadedBy: file.uploadedBy._id,
-          uploadedByName: (file.uploadedBy as any).name,
+          uploadedByName: (file.uploadedBy as unknown as IUser).name,
         },
       },
     });
@@ -412,7 +412,7 @@ export const accessFileByToken = async (req: AuthRequest, res: Response): Promis
           maxDownloads: file.maxDownloads,
           usedDownloads: file.usedDownloads,
           visibility: file.visibility,
-          uploadedByName: (file.uploadedBy as any).name,
+          uploadedByName: (file.uploadedBy as unknown as IUser).name,
         },
       },
     });

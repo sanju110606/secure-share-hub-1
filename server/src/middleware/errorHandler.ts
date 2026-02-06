@@ -1,10 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import { ValidationError } from 'express-validator';
 
+interface ErrorWithStatus extends Error {
+  status?: number;
+  code?: string | number;
+}
+
 /**
  * Global error handler middleware
  */
-export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction): void => {
+export const errorHandler = (err: ErrorWithStatus, req: Request, res: Response, next: NextFunction): void => {
   console.error('Error:', err);
 
   // Multer file upload errors

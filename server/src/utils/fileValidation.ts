@@ -141,6 +141,7 @@ export const sanitizeFilename = (filename: string): string => {
   // Remove any remaining dangerous patterns
   sanitized = sanitized.replace(/\.\./g, '');
   sanitized = sanitized.replace(/[<>:"|?*]/g, '');
+  // eslint-disable-next-line no-control-regex
   sanitized = sanitized.replace(/[\x00-\x1f\x80-\x9f]/g, '');
   
   // Ensure filename is not empty after sanitization

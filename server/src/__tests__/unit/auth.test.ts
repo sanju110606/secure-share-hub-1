@@ -46,7 +46,7 @@ describe('Authentication Features', () => {
 
     it('should reject weak passwords (no special character)', async () => {
       const weakPassword = 'WeakPass123';
-      const hasSpecial = /[@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/]/.test(weakPassword);
+      const hasSpecial = /[@$!%*?&#^()_+\-=[\]{};':"\\|,.<>/]/.test(weakPassword);
       expect(hasSpecial).toBe(false);
     });
 
@@ -60,7 +60,7 @@ describe('Authentication Features', () => {
       const hasUppercase = /[A-Z]/.test(strongPassword);
       const hasLowercase = /[a-z]/.test(strongPassword);
       const hasNumber = /\d/.test(strongPassword);
-      const hasSpecial = /[@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/]/.test(strongPassword);
+      const hasSpecial = /[@$!%*?&#^()_+\-=[\]{};':"\\|,.<>/]/.test(strongPassword);
       const isLongEnough = strongPassword.length >= 8;
 
       expect(hasUppercase).toBe(true);

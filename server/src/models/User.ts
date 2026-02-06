@@ -93,7 +93,12 @@ userSchema.methods.incrementFailedAttempts = async function (): Promise<void> {
   }
 
   // Increment failed attempts
-  const updates: any = { $inc: { failedLoginAttempts: 1 } };
+  interface UpdateQuery {
+    $inc: { failedLoginAttempts: number };
+    $set?: { lockUntil: Date };
+  }
+  
+  const updates: UpdateQuery = { $inc: { failedLoginAttempts: 1 } };
 
   // Lock account if max attempts reached
   if (this.failedLoginAttempts + 1 >= MAX_ATTEMPTS) {

@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { validationResult } from 'express-validator';
 import { Activity } from '../models/Activity';
-import { File } from '../models/File';
+import { File, IFile } from '../models/File';
 import { AuthRequest } from '../middleware/auth';
 
 /**
@@ -37,7 +37,7 @@ export const getUserActivities = async (req: AuthRequest, res: Response): Promis
         activities: activities.map((activity) => ({
           id: activity._id,
           fileId: activity.fileId._id,
-          fileName: (activity.fileId as any).originalName || 'Unknown',
+          fileName: (activity.fileId as unknown as IFile).originalName || 'Unknown',
           timestamp: activity.timestamp,
           eventType: activity.eventType,
           status: activity.status,

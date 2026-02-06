@@ -1,8 +1,8 @@
 import { Response } from 'express';
 import { validationResult } from 'express-validator';
 import fs from 'fs';
-import { File } from '../models/File';
-import { User } from '../models/User';
+import { File, IFile } from '../models/File';
+import { User, IUser } from '../models/User';
 import { Activity } from '../models/Activity';
 import { AuthRequest } from '../middleware/auth';
 
@@ -121,7 +121,7 @@ export const getAllFiles = async (req: AuthRequest, res: Response): Promise<void
           status: file.status,
           visibility: file.visibility,
           uploadedBy: file.uploadedBy._id,
-          uploadedByName: (file.uploadedBy as any).name,
+          uploadedByName: (file.uploadedBy as unknown as IUser).name,
         })),
       },
     });
@@ -154,7 +154,7 @@ export const getAllActivities = async (req: AuthRequest, res: Response): Promise
         activities: activities.map((activity) => ({
           id: activity._id,
           fileId: activity.fileId._id,
-          fileName: (activity.fileId as any).originalName || 'Unknown',
+          fileName: (activity.fileId as unknown as IFile).originalName || 'Unknown',
           timestamp: activity.timestamp,
           eventType: activity.eventType,
           status: activity.status,
