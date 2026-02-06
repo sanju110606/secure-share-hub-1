@@ -8,6 +8,8 @@ import { User } from '../models/User';
 import { AuthRequest } from '../middleware/auth';
 import { generateAccessToken } from '../utils/tokenGenerator';
 import { config } from '../config/config';
+import { validateFile, isImage } from '../utils/fileValidation';
+import { processUploadedImage } from '../utils/imageProcessor';
 
 /**
  * Upload a new file
@@ -17,6 +19,10 @@ export const uploadFile = async (req: AuthRequest, res: Response): Promise<void>
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Clean up uploaded file if validation fails
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
       res.status(400).json({
         success: false,
         error: {
@@ -40,6 +46,10 @@ export const uploadFile = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     if (!req.user) {
+      // Clean up uploaded file
+      if (fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
       res.status(401).json({
         success: false,
         error: {
@@ -48,6 +58,52 @@ export const uploadFile = async (req: AuthRequest, res: Response): Promise<void>
         },
       });
       return;
+    }
+
+    // Comprehensive file validation
+    const validationResult = await validateFile(
+      req.file.path,
+      req.file.originalname,
+      req.file.mimetype,
+      req.file.size,
+      config.maxFileSize
+    );
+
+    if (!validationResult.valid) {
+      // Clean up uploaded file
+      if (fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      
+      // Log blocked upload attempt
+      await Activity.create({
+        eventType: 'upload_blocked',
+        status: 'blocked',
+        details: `File upload blocked: ${validationResult.errors.join(', ')}`,
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+      });
+      
+      res.status(400).json({
+        success: false,
+        error: {
+          message: 'File validation failed',
+          code: 'VALIDATION_FAILED',
+          details: validationResult.errors,
+        },
+      });
+      return;
+    }
+
+    // Process images (optimize and remove EXIF data)
+    if (isImage(req.file.mimetype)) {
+      try {
+        await processUploadedImage(req.file.path);
+        console.log(`Image processed: ${req.file.originalname}`);
+      } catch (error) {
+        console.error('Image processing error:', error);
+        // Continue even if image processing fails
+      }
     }
 
     const { maxDownloads = 0, expiryHours = 24, visibility = 'private' } = req.body;

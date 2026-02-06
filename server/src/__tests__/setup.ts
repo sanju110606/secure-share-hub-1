@@ -2,7 +2,7 @@
 // This file is run before all tests
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-let mongoServer: MongoMemoryServer;
+let mongoServer: MongoMemoryServer | undefined;
 
 // Setup before all tests
 beforeAll(async () => {
