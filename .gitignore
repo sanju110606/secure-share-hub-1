@@ -25,3 +25,8 @@ dist-ssr
 
 # Vercel
 .vercel
+
+# Server uploads and environment
+server/uploads
+server/.env
+.env
