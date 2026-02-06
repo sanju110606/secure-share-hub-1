@@ -4,12 +4,14 @@ import FileUpload from '@/components/file-sharing/FileUpload';
 import FileCard from '@/components/file-sharing/FileCard';
 import StatsCard from '@/components/file-sharing/StatsCard';
 import { useFiles } from '@/lib/file-context';
+import { useAuth } from '@/lib/auth-context';
 import { calculateRisk } from '@/lib/mock-data';
 
 export default function Index() {
   const { files } = useFiles();
+  const { user } = useAuth();
 
-  const userFiles = useMemo(() => files.filter(f => f.uploadedBy === 'user-1'), [files]);
+  const userFiles = useMemo(() => files.filter(f => f.uploadedBy === user?.userId), [files, user?.userId]);
   const activeLinks = useMemo(() => userFiles.filter(f => f.status === 'active' && new Date(f.expiryTimestamp).getTime() > Date.now()), [userFiles]);
   const highRiskCount = useMemo(() => userFiles.filter(f => calculateRisk(f) === 'high' && f.status === 'active').length, [userFiles]);
 

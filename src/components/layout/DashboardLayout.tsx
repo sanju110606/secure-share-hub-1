@@ -1,20 +1,33 @@
 import { ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Shield, Upload, LayoutDashboard, Activity } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Shield, Upload, LayoutDashboard, Activity, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/lib/auth-context';
+import { Button } from '@/components/ui/button';
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 const navItems = [
-  { path: '/', label: 'My Files', icon: Upload },
-  { path: '/activity', label: 'Activity', icon: Activity },
-  { path: '/admin', label: 'Admin', icon: LayoutDashboard },
+  { path: '/', label: 'My Files', icon: Upload, roles: ['user', 'admin'] },
+  { path: '/activity', label: 'Activity', icon: Activity, roles: ['user', 'admin'] },
+  { path: '/admin', label: 'Admin', icon: LayoutDashboard, roles: ['admin'] },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const visibleNavItems = navItems.filter(item => 
+    user?.role && item.roles.includes(user.role)
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -31,7 +44,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </Link>
 
             <nav className="flex items-center gap-1">
-              {navItems.map(item => {
+              {visibleNavItems.map(item => {
                 const isActive = location.pathname === item.path;
                 return (
                   <Link
@@ -60,8 +73,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </nav>
 
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
-                A
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
+                  {user?.name?.charAt(0) || 'U'}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="hidden sm:flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </Button>
               </div>
             </div>
           </div>
