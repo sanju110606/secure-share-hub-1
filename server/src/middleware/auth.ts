@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { config } from '../config/config';
 import { User, IUser } from '../models/User';
 
@@ -85,14 +85,14 @@ export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction): vo
  * Generate JWT access token
  */
 export const generateAccessToken = (userId: string): string => {
-  return jwt.sign({ userId }, config.jwtSecret, { expiresIn: config.jwtExpire });
+  return jwt.sign({ userId }, config.jwtSecret, { expiresIn: config.jwtExpire as any });
 };
 
 /**
  * Generate JWT refresh token
  */
 export const generateRefreshToken = (userId: string): string => {
-  return jwt.sign({ userId }, config.jwtRefreshSecret, { expiresIn: config.jwtRefreshExpire });
+  return jwt.sign({ userId }, config.jwtRefreshSecret, { expiresIn: config.jwtRefreshExpire as any });
 };
 
 /**
