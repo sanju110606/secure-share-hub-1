@@ -25,19 +25,19 @@ const MOCK_USERS = {
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-
-  // Load user from localStorage on mount
-  useEffect(() => {
+  const [user, setUser] = useState<User | null>(() => {
+    // Load user from localStorage immediately during initialization
     const storedUser = localStorage.getItem('auth_user');
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        return JSON.parse(storedUser);
       } catch (error) {
         localStorage.removeItem('auth_user');
+        return null;
       }
     }
-  }, []);
+    return null;
+  });
 
   const login = useCallback(async (email: string, password: string, role: UserRole): Promise<boolean> => {
     // Simulate API call delay
