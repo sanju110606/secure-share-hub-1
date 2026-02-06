@@ -30,3 +30,7 @@ dist-ssr
 server/uploads
 server/.env
 .env
+
+# MongoDB memory server binaries
+.mongodb-binaries
+*.lock
