@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearchParams, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Shield, Download, Ban, Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button';
 import { useFiles } from '@/lib/file-context';
 import { formatFileSize, getFileIcon, getTimeRemaining } from '@/lib/mock-data';
 import { toast } from 'sonner';
+import { fileAPI } from '@/services/api';
 
 export default function FileAccessPage() {
   const { fileId } = useParams<{ fileId: string }>();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const { files, updateFile, addActivity } = useFiles();
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Step 1: Fetch file by fileId ONLY (do not use token for lookup)
   const file = useMemo(() => files.find(f => f.id === fileId), [files, fileId]);
@@ -60,22 +62,36 @@ export default function FileAccessPage() {
     return { allowed: true, reason: 'Access granted', statusCode: 200 };
   }, [file, token, addActivity]);
 
-  const handleDownload = () => {
-    if (!file || !accessStatus.allowed) return;
+  const handleDownload = async () => {
+    if (!file || !accessStatus.allowed || !token) return;
     
-    // Increment usedDownloads ONLY on successful download
-    updateFile(file.id, { usedDownloads: file.usedDownloads + 1 });
+    setIsDownloading(true);
     
-    addActivity({
-      id: crypto.randomUUID(),
-      fileId: file.id,
-      timestamp: new Date().toISOString(),
-      eventType: 'download_success',
-      status: 'success',
-      details: 'File downloaded by token holder',
-    });
-    
-    toast.success('Download started', { description: file.name });
+    try {
+      // Call the API to download the file
+      const response = await fileAPI.downloadFileByToken(token);
+      
+      // Create a blob from the response and trigger download
+      const blob = response.data;
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      // Note: Download counter increment and activity logging are handled by the API
+      // The file state will be updated via the FileContext when it next refreshes
+      
+      toast.success('Download complete', { description: file.name });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Please try again later.';
+      toast.error('Download failed', { description: errorMessage });
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -152,9 +168,9 @@ export default function FileAccessPage() {
                     </div>
                   </div>
 
-                  <Button className="w-full" onClick={handleDownload}>
+                  <Button className="w-full" onClick={handleDownload} disabled={isDownloading}>
                     <Download className="w-4 h-4 mr-2" />
-                    Download File
+                    {isDownloading ? 'Downloading...' : 'Download File'}
                   </Button>
 
                   <p className="text-xs text-center text-muted-foreground">
