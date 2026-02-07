@@ -10,6 +10,9 @@ describe('File Download Functionality', () => {
     global.URL.createObjectURL = vi.fn(() => 'mock-url');
     global.URL.revokeObjectURL = vi.fn();
     
+    // Store original createElement for fallback
+    const originalCreateElement = document.createElement.bind(document);
+    
     // Mock document methods
     document.createElement = vi.fn((tag: string) => {
       if (tag === 'a') {
@@ -20,8 +23,8 @@ describe('File Download Functionality', () => {
           style: {},
         } as any;
       }
-      return document.createElement(tag);
-    });
+      return originalCreateElement(tag);
+    }) as any;
     
     document.body.appendChild = vi.fn();
     document.body.removeChild = vi.fn();

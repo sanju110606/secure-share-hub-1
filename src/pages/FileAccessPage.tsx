@@ -82,10 +82,8 @@ export default function FileAccessPage() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       
-      // Update the local file state to reflect the incremented download count
-      updateFile(file.id, { usedDownloads: file.usedDownloads + 1 });
-      
-      // Note: Activity logging is already handled by the API
+      // Note: Download counter increment and activity logging are handled by the API
+      // The file state will be updated via the FileContext when it next refreshes
       
       toast.success('Download complete', { description: file.name });
     } catch (error) {
